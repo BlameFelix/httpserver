@@ -83,11 +83,11 @@ int main(int argc, char **argv) {
 
 		//printing the message out
 		//printf("Recived message: %s", msgBuf);
-
-		/*//sending the message back
-		if((send(connfd, msgBuf, strlen(msgBuf), 0))==-1) {
+		char *errResponde = "HTTP/1.0 501 Not Implemented\r\nContent-type: text/html\r\n\r\n<html><body><b>501</b> Operation not supported</body></html>\r\n";
+		//sending the response
+		if((send(connfd, errResponde, strlen(errResponde), 0))==-1) {
 			sysErr("Server Fault: send message", -6);
-		}*/
+		}
 
 		//clearing the buffer
 		memset(&msgBuf,0,BUF_LEN);
