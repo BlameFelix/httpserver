@@ -55,11 +55,12 @@ int main(int argc, char **argv) {
 		sysErr("Client Fault: connect", -3);
 	}
 	//user input
-	printf("Enter String: ");
+	//printf("Enter String: ");
 
-	if((fgets(sendBuf,BUF_LEN-1,stdin))==NULL) {
-	    sysErr("Client Fault: input", -4);
-	}
+	//if((fgets(sendBuf,BUF_LEN-1,stdin))==NULL) {
+	    //sysErr("Client Fault: input", -4);
+	//}
+	strcpy(sendBuf,"GET /index.htm HTTP/1.1\r\nHallo2.zeile\r\n\r\n");
 	/*-------------------------------------*/
 	//sendBuf[strlen(sendBuf)+1]="\0";
 	printf("gelesen: %s", sendBuf);

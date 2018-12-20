@@ -25,7 +25,6 @@ void usage( char *argv0 ) {
 }
 
 int main(int argc, char **argv) {
-	printf("Hallo");
 	//Checking if a port has been supplied
 	if(argc<2){
 		usage(argv[0]);
@@ -60,7 +59,6 @@ int main(int argc, char **argv) {
 	if(listen(listenfd,5)==-1) {
 		sysErr("Server Fault: listen", -3);
 	}
-	printf("a");
 	//endless loop that accepts and handles client requests
 	while(true) {
 		//accepting next request in the queue and setting up connction socket
@@ -74,9 +72,9 @@ int main(int argc, char **argv) {
 		if((recv(connfd, msgBuf, BUF_LEN, 0))==-1) {
 			sysErr("Server Fault: recive message", -5);
 		}*/
-		printf("1");
-		char request[BUF_LEN];
-		int len;
+
+		char request[BUF_LEN]="A";
+		int len=1;
 		while ((len>0) && strcmp("\n", request)) {
 			len = get_line(connfd, request, BUF_LEN-1);
 			//strcat(msgBuf, request);
@@ -84,7 +82,7 @@ int main(int argc, char **argv) {
 		}
 
 		//printing the message out
-		printf("Recived message: %s", msgBuf);
+		//printf("Recived message: %s", msgBuf);
 
 		/*//sending the message back
 		if((send(connfd, msgBuf, strlen(msgBuf), 0))==-1) {
