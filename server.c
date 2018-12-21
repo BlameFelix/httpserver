@@ -12,6 +12,9 @@
 
 #define BUF_LEN 128
 
+char* getResponde() {
+	return "HTTP/1.0 501 Not Implemented\r\nContent-type: text/html\r\n\r\n<html><body><b>501</b> Operation not supported</body></html>\r\n";
+}
 // Something unexpected happened. Report error and terminate.
 void sysErr( char *msg, int exitCode ) {
 	fprintf( stderr, "%s\n\t%s\n", msg, strerror( errno ) );
@@ -83,7 +86,7 @@ int main(int argc, char **argv) {
 
 		//printing the message out
 		//printf("Recived message: %s", msgBuf);
-		char *errResponde = "HTTP/1.0 501 Not Implemented\r\nContent-type: text/html\r\n\r\n<html><body><b>501</b> Operation not supported</body></html>\r\n";
+		char *errResponde = getResponde();
 		//sending the response
 		if((send(connfd, errResponde, strlen(errResponde), 0))==-1) {
 			sysErr("Server Fault: send message", -6);
