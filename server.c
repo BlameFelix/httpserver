@@ -12,7 +12,21 @@
 
 #define BUF_LEN 128
 
-char* getResponde() {
+char* getResponde(char *msg) {
+	int count;
+	char parts[BUF_LEN];	
+	parts = strtok(msg, " ");
+	while(parts != NULL) {
+		parts = strtok(msg, " ");
+		printf("%s\n", parts);
+
+	}
+		printf("%s\n", parts[0]);
+		printf("%s\n", parts[1]);
+		printf("%s\n", parts[2]);
+	if(strncmp("GET", msg, 3)==0) {
+		return "HTTP/1.0 200 OK\r\n\r\n<html><body>Dies ist die eine Fake Seite  des Webservers!</body></html>\r\n";
+	}	
 	return "HTTP/1.0 501 Not Implemented\r\nContent-type: text/html\r\n\r\n<html><body><b>501</b> Operation not supported</body></html>\r\n";
 }
 // Something unexpected happened. Report error and terminate.
@@ -78,15 +92,23 @@ int main(int argc, char **argv) {
 
 		char request[BUF_LEN]="A";
 		int len=1;
+		bool zeile=true;
 		while ((len>0) && strcmp("\n", request)) {
 			len = get_line(connfd, request, BUF_LEN-1);
-			//strcat(msgBuf, request);
+			if(zeile) {			
+				strcat(msgBuf, request);
+			}
+			zeile=false;			
 			printf("%s",request);
 		}
-
+		//rename msgBuf		
+		printf("zeile: %s", msgBuf);
+		//rename errRestponde
+		char *errResponde = getResponde(msgBuf);
+		
 		//printing the message out
 		//printf("Recived message: %s", msgBuf);
-		char *errResponde = getResponde();
+		
 		//sending the response
 		if((send(connfd, errResponde, strlen(errResponde), 0))==-1) {
 			sysErr("Server Fault: send message", -6);
