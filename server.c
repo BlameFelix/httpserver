@@ -12,12 +12,12 @@
 
 #define BUF_LEN 128
 
-void getFile(char fileName, char *file) {
+void getFile(char *fileName, char file[]) {
 	FILE *f;
 	char path[60];//, file[BUF_LEN];
 	int c;
 	strcpy(path, "/var");
-	strcpy(path, &fileName);
+	strcpy(path, fileName);
 	f = fopen(path, "r");
 	int cnt = 0;	
 	while((c = fgetc(f)) != EOF) {
@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
 		char fileName[BUF_LEN];
 		getResponde(msgBuf, fileName);
 		char responde[BUF_LEN];
-		getFile(fileName, responde);
+		getFile(fileName, (char *) responde);
 		
 		//printing the message out
 		//printf("Recived message: %s", msgBuf);
