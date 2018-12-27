@@ -12,22 +12,44 @@
 
 #define BUF_LEN 128
 
-char* getResponde(char *msg) {
-	int count;
-	char parts[BUF_LEN];	
+void getFile(char fileName, char *file) {
+	FILE *f;
+	char path[60];//, file[BUF_LEN];
+	int c;
+	strcpy(path, "/var");
+	strcpy(path, &fileName);
+	f = fopen(path, "r");
+	int cnt = 0;	
+	while((c = fgetc(f)) != EOF) {
+		file[cnt] = c;
+		cnt++;
+	} 
+	fclose(f);
+	//return file;
+}
+void getResponde(char *msg, char *fileName) {
+	/*int count;
+	char *parts;	
 	parts = strtok(msg, " ");
-	while(parts != NULL) {
+	while(parts != NULcL) {
 		parts = strtok(msg, " ");
 		printf("%s\n", parts);
 
 	}
 		printf("%s\n", parts[0]);
 		printf("%s\n", parts[1]);
-		printf("%s\n", parts[2]);
-	if(strncmp("GET", msg, 3)==0) {
-		return "HTTP/1.0 200 OK\r\n\r\n<html><body>Dies ist die eine Fake Seite  des Webservers!</body></html>\r\n";
+		printf("%s\n", parts[2]);*/
+	char method[100], version[100];//fileName[100], version[100];
+	sscanf(msg, "%s %s %s", method, fileName, version);
+	printf("Nachricht: %s %s %s\n", method, fileName, version);
+	//getFile(fileName);
+	char z[BUF_LEN];
+	if(strcmp("GET", method)==0) {
+		//z = getFile(*fileName);
+		//return fileName;//z;
+//"HTTP/1.0 200 OK\r\n\r\n<html><body>Dies ist die eine Fake Seite  des Webservers!</body></html>\r\n";
 	}	
-	return "HTTP/1.0 501 Not Implemented\r\nContent-type: text/html\r\n\r\n<html><body><b>501</b> Operation not supported</body></html>\r\n";
+	//return "HTTP/1.0 501 Not Implemented\r\nContent-type: text/html\r\n\r\n<html><body><b>501</b> Operation not supported</body></html>\r\n";
 }
 // Something unexpected happened. Report error and terminate.
 void sysErr( char *msg, int exitCode ) {
@@ -104,13 +126,17 @@ int main(int argc, char **argv) {
 		//rename msgBuf		
 		printf("zeile: %s", msgBuf);
 		//rename errRestponde
-		char *errResponde = getResponde(msgBuf);
+		//hier array erstellen und übergeben an funktion. evtl dann hier getFIle()	
+		char fileName[BUF_LEN];
+		getResponde(msgBuf, fileName);
+		char responde[BUF_LEN];
+		getFile(fileName, responde);
 		
 		//printing the message out
 		//printf("Recived message: %s", msgBuf);
 		
 		//sending the response
-		if((send(connfd, errResponde, strlen(errResponde), 0))==-1) {
+		if((send(connfd, responde, strlen(responde), 0))==-1) {
 			sysErr("Server Fault: send message", -6);
 		}
 
