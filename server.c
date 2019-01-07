@@ -23,11 +23,11 @@ struct response getFile(char *fileName) {
 	int c;
 	strcpy(path, "./var");
 	strcat(path, fileName);
-	printf("%s", fileName);
+	printf("%s\n", fileName);
 	//pfad returnen
 	if((f = fopen(path, "r"))==NULL) {
 		strcpy(res.header,"HTTP/1.0 404 Not Found\r\n");
-		strcpy(res.content, "ich bin kaputt");
+		strcpy(res.content, "<html><body><b>Kaputt</b><br>ich bin kaputt</body></html>");
 		return res;
 	}
 	int cnt = 0;
