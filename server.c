@@ -19,15 +19,15 @@ struct response getFile(char *fileName) {
 	FILE *f;
 	char file[BUF_LEN];
 	struct response res;
-	char path[60];//, file[BUF_LEN];
+	char path[60];
 	int c;
 	strcpy(path, "./var");
 	strcat(path, fileName);
 	printf("%s\n", fileName);
 	//pfad returnen
 	if((f = fopen(path, "r"))==NULL) {
-		strcpy(res.header,"HTTP/1.0 404 Not Found\r\n");
-		strcpy(res.content, "<html><body><b>Kaputt</b><br>ich bin kaputt</body></html>");
+		strcpy(res.header,"HTTP/1.0 404 Not Found\r\n\r\n");
+		strcpy(res.content, "<html><body><b>Kaputt</b><br>Kein File gefunden</body></html>");
 		return res;
 	}
 	int cnt = 0;
@@ -39,20 +39,8 @@ struct response getFile(char *fileName) {
 	strcpy(res.content, file);
 	fclose(f);
 	return res;
-	//return file;
 };
 struct response getResponde(char *msg) {
-	/*int count;
-	char *parts;
-	parts = strtok(msg, " ");
-	while(parts != NULcL) {
-		parts = strtok(msg, " ");
-		printf("%s\n", parts);
-
-	}
-		printf("%s\n", parts[0]);
-		printf("%s\n", parts[1]);
-		printf("%s\n", parts[2]);*/
 	struct response res;
 	char method[100], version[100], fileName[100];// version[100];
 	sscanf(msg, "%s %s %s", method, fileName, version);
@@ -62,11 +50,8 @@ struct response getResponde(char *msg) {
 	if(strcmp("GET", method)==0) {
 		res = getFile(fileName);
 		return res;
-		//return fileName;//z;
-//"HTTP/1.0 200 OK\r\n\r\n<html><body>Dies ist die eine Fake Seite  des Webservers!</body></html>\r\n";
 	}
 	return res;
-	//return "HTTP/1.0 501 Not Implemented\r\nContent-type: text/html\r\n\r\n<html><body><b>501</b> Operation not supported</body></html>\r\n";
 }
 // Something unexpected happened. Report error and terminate.
 void sysErr( char *msg, int exitCode ) {
@@ -123,12 +108,6 @@ int main(int argc, char **argv) {
 			sysErr("Server Fault: connect", -4);
 		}
 
-		/*
-		//reciving the message of the client and saving the length
-		if((recv(connfd, msgBuf, BUF_LEN, 0))==-1) {
-			sysErr("Server Fault: recive message", -5);
-		}*/
-
 		char request[BUF_LEN]="A";
 		int len=1;
 		bool zeile=true;
@@ -143,7 +122,7 @@ int main(int argc, char **argv) {
 		//rename msgBuf
 		printf("zeile: %s", msgBuf);
 		//rename errRestponde
-		//hier array erstellen und übergeben an funktion. evtl dann hier getFIle()	
+	
 		struct response r;
 		char fileName[BUF_LEN];
 		r=getResponde(msgBuf);
