@@ -15,6 +15,18 @@ struct response {
 	char header[BUF_LEN];
 	char content[BUF_LEN];
 };
+struct response error404() {
+	struct response res;
+	strcpy(res.header,"HTTP/1.0 404 Not Found\r\n\r\n");
+	strcpy(res.content, "<html><body><b>404</b><br>Kein File gefunden</body></html>");
+	return res;
+}
+struct response error501() {
+	struct response res;
+	strcpy(res.header,"HTTP/1.0 501 Not Implemented\r\n\r\n");
+	strcpy(res.content, "<html><body><b>501</b><br>Operation not supportet</body></html>");
+	return res;
+}
 struct response getFile(char *fileName) {
 	FILE *f;
 	char file[BUF_LEN];
@@ -26,9 +38,7 @@ struct response getFile(char *fileName) {
 	printf("%s\n", fileName);
 	//pfad returnen
 	if((f = fopen(path, "r"))==NULL) {
-		strcpy(res.header,"HTTP/1.0 404 Not Found\r\n\r\n");
-		strcpy(res.content, "<html><body><b>Kaputt</b><br>Kein File gefunden</body></html>");
-		return res;
+		return error404();
 	}
 	int cnt = 0;
 	while((c = fgetc(f)) != EOF) {
@@ -45,13 +55,16 @@ struct response getResponde(char *msg) {
 	char method[100], version[100], fileName[100];// version[100];
 	sscanf(msg, "%s %s %s", method, fileName, version);
 	printf("Nachricht: %s %s %s\n", method, fileName, version);
+	if(strcmp(fileName, "/")==0) {
+		return error404();
+	}
 	//getFile(fileName);
 	char z[BUF_LEN];
 	if(strcmp("GET", method)==0) {
 		res = getFile(fileName);
 		return res;
 	}
-	return res;
+	return error501();
 }
 // Something unexpected happened. Report error and terminate.
 void sysErr( char *msg, int exitCode ) {
