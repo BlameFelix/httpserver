@@ -35,7 +35,6 @@ struct response getFile(char *fileName) {
 	char path[60];
 	int c;
 	strcpy(path, "./var");
-	//../abfangen
 	strcat(path, fileName);
 	printf("%s\n", fileName);
 	//pfad returnen
@@ -60,8 +59,9 @@ struct response getResponde(char *msg) {
 	if(strcmp(fileName, "/")==0) {
 		return error404();
 	}
-	//getFile(fileName);
-	char z[BUF_LEN];
+	if(strncmp(fileName, "../", 3)==0) {
+		return error404();
+	}
 	if(strcmp("GET", method)==0) {
 		res = getFile(fileName);
 		return res;
@@ -137,12 +137,12 @@ int main(int argc, char **argv) {
 		//rename msgBuf
 		printf("zeile: %s", msgBuf);
 		//rename errRestponde
+		signal(SIGCHLD, SIG_IGN);
 		pid_t pid;
 		pid = fork();
 		if(pid==0) {
 			close(listenfd);
 			struct response r;
-			char fileName[BUF_LEN];
 			r=getResponde(msgBuf);
 			char responde[BUF_LEN];
 			//getFile(fileName, (char *) responde);
