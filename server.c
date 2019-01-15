@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include "get_line.c"
+#include <signal.h>
 
 #define BUF_LEN 128
 struct response {
@@ -34,6 +35,7 @@ struct response getFile(char *fileName) {
 	char path[60];
 	int c;
 	strcpy(path, "./var");
+	//../abfangen
 	strcat(path, fileName);
 	printf("%s\n", fileName);
 	//pfad returnen
@@ -135,28 +137,37 @@ int main(int argc, char **argv) {
 		//rename msgBuf
 		printf("zeile: %s", msgBuf);
 		//rename errRestponde
+		pid_t pid;
+		pid = fork();
+		if(pid==0) {
+			close(listenfd);
+			struct response r;
+			char fileName[BUF_LEN];
+			r=getResponde(msgBuf);
+			char responde[BUF_LEN];
+			//getFile(fileName, (char *) responde);
+			strcpy(responde, r.header);
+			strcat(responde, r.content);
+			//sprintf
+			//printing the message out
+			//printf("Recived message: %s", msgBuf);
+
+			//sending the response
+			if((send(connfd, responde, strlen(responde), 0))==-1) {
+				sysErr("Server Fault: send message", -6);
+			}
+
+			//clearing the buffer
+			memset(&responde,0,BUF_LEN);
+			//closing the connection
+			close(connfd);
+			exit(0);
+		}
+		else {
+			close(connfd);
+		}
 	
-		struct response r;
-		char fileName[BUF_LEN];
-		r=getResponde(msgBuf);
-		char responde[BUF_LEN];
-		//getFile(fileName, (char *) responde);
-		strcpy(responde, r.header);
-		strcat(responde, r.content);
-		//sprintf
-		//printing the message out
-		//printf("Recived message: %s", msgBuf);
-
-		//sending the response
-		if((send(connfd, responde, strlen(responde), 0))==-1) {
-			sysErr("Server Fault: send message", -6);
-		}
-
-		//clearing the buffer
-		memset(&responde,0,BUF_LEN);
-		//closing the connection
-		close (connfd);
-		}
+	}
 	//closing listensocket
 	close (listenfd);
 	return 0;
