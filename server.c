@@ -8,66 +8,9 @@
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include "get_line.c"
-#include <signal.h>
 
 #define BUF_LEN 128
-struct response {
-	char header[BUF_LEN];
-	char content[BUF_LEN];
-};
-struct response error404() {
-	struct response res;
-	strcpy(res.header,"HTTP/1.0 404 Not Found\r\n\r\n");
-	strcpy(res.content, "<html><body><b>404</b><br>Kein File gefunden</body></html>");
-	return res;
-}
-struct response error501() {
-	struct response res;
-	strcpy(res.header,"HTTP/1.0 501 Not Implemented\r\n\r\n");
-	strcpy(res.content, "<html><body><b>501</b><br>Operation not supportet</body></html>");
-	return res;
-}
-struct response getFile(char *fileName) {
-	FILE *f;
-	char file[BUF_LEN];
-	struct response res;
-	char path[60];
-	int c;
-	strcpy(path, "./var");
-	strcat(path, fileName);
-	printf("%s\n", fileName);
-	//pfad returnen
-	if((f = fopen(path, "r"))==NULL) {
-		return error404();
-	}
-	int cnt = 0;
-	while((c = fgetc(f)) != EOF) {
-		file[cnt] = c;
-		cnt++;
-	}
-	strcpy(res.header,"HTTP/1.0 200 OK\r\nContnt-type:text/html\r\n\r\n");
-	strcpy(res.content, file);
-	fclose(f);
-	return res;
-};
-struct response getResponde(char *msg) {
-	struct response res;
-	char method[100], version[100], fileName[100];// version[100];
-	sscanf(msg, "%s %s %s", method, fileName, version);
-	printf("Nachricht: %s %s %s\n", method, fileName, version);
-	if(strcmp(fileName, "/")==0) {
-		return error404();
-	}
-	if(strncmp(fileName, "../", 3)==0) {
-		return error404();
-	}
-	if(strcmp("GET", method)==0) {
-		res = getFile(fileName);
-		return res;
-	}
-	return error501();
-}
+
 // Something unexpected happened. Report error and terminate.
 void sysErr( char *msg, int exitCode ) {
 	fprintf( stderr, "%s\n\t%s\n", msg, strerror( errno ) );
@@ -115,6 +58,7 @@ int main(int argc, char **argv) {
 	if(listen(listenfd,5)==-1) {
 		sysErr("Server Fault: listen", -3);
 	}
+
 	//endless loop that accepts and handles client requests
 	while(true) {
 		//accepting next request in the queue and setting up connction socket
@@ -123,51 +67,21 @@ int main(int argc, char **argv) {
 			sysErr("Server Fault: connect", -4);
 		}
 
-		char request[BUF_LEN]="A";
-		int len=1;
-		bool zeile=true;
-		while ((len>0) && strcmp("\n", request)) {
-			len = get_line(connfd, request, BUF_LEN-1);
-			if(zeile) {
-				strcpy(msgBuf, request);
-			}
-			zeile=false;
-			printf("%s",request);
+		//reciving the message of the client and saving the length
+		if((recv(connfd, msgBuf, BUF_LEN, 0))==-1) {
+			sysErr("Server Fault: recive message", -5);
 		}
-		//rename msgBuf
-		printf("zeile: %s", msgBuf);
-		//rename errRestponde
-		signal(SIGCHLD, SIG_IGN);
-		pid_t pid;
-		pid = fork();
-		if(pid==0) {
-			close(listenfd);
-			struct response r;
-			r=getResponde(msgBuf);
-			char responde[BUF_LEN];
-			//getFile(fileName, (char *) responde);
-			strcpy(responde, r.header);
-			strcat(responde, r.content);
-			//sprintf
-			//printing the message out
-			//printf("Recived message: %s", msgBuf);
-
-			//sending the response
-			if((send(connfd, responde, strlen(responde), 0))==-1) {
-				sysErr("Server Fault: send message", -6);
-			}
-
-			//clearing the buffer
-			memset(&responde,0,BUF_LEN);
-			//closing the connection
-			close(connfd);
-			exit(0);
+		//printing the message out
+		printf("Recived message: %s sending back....\n", msgBuf);
+		//sending the message back
+		if((send(connfd, msgBuf, strlen(msgBuf), 0))==-1) {
+			sysErr("Server Fault: send message", -6);
 		}
-		else {
-			close(connfd);
+		//clearing the buffer
+		memset(&msgBuf,0,BUF_LEN);
+		//closing the connection
+		close (connfd);
 		}
-	
-	}
 	//closing listensocket
 	close (listenfd);
 	return 0;
