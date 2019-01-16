@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
                         }
 
                         //clearing the buffer
-			memset(&response,0,BUF_LEN);
+			            memset(&response,0,BUF_LEN);
 
                         //closing the connection
                         close(connfd);
@@ -206,9 +206,3 @@ int main(int argc, char **argv) {
         close (listenfd);
         return 0;
 }
-
-
-
-				
-
-
